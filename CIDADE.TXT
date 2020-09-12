@@ -1,0 +1,8 @@
+1;São Paulo;SP;Sudoeste;ACLIMAÇÃO 2;Não-Pavimentado;
+2;São Paulo;SP;Sudoeste;Cambuci;Não-Pavimentado;
+3;São Paulo;SP;Sudoeste;ACLIMAÇÃO 2;Pavimentado;
+4;São Paulo;SP;Sudoeste;Mocca;Não-Pavimentado;
+5;São Paulo;SP;Sudoeste;Liberdade;Pavimentado;
+6;São Paulo;SP;Sudoeste;Consolação;Não-Pavimentado;
+7;São Paulo;SP;Sudoeste;Jabaquara;Pavimentado;
+8;São Paulo;SP;Sudoeste;Vergueiro;Não-Pavimentado;

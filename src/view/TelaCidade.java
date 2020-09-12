@@ -1,32 +1,59 @@
-package classes;
+package view;
 
-import javax.swing.JComboBox;
+import controller.CidadeControl;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.Cidade;
 
 public class TelaCidade extends javax.swing.JFrame {
 
     Cidade cidade;
-    Setor setor;
+    CidadeControl controle;
 
-    public TelaCidade() {
-        initComponents();
-
-        jCombCriarSetor.removeAllItems();
-        String[] opcaoDeCriarSetor = {"Selecione aqui a opção", "( S ) - Sim", "( N ) - Não)"};
-        for (int i = 0; i < opcaoDeCriarSetor.length; i++) {
-            jCombCriarSetor.addItem(opcaoDeCriarSetor[i]);
+    public TelaCidade() throws Exception {
+        try {
+            initComponents();
+            cidade = Cidade.getInstancia();
+            controle = new CidadeControl();
+            
+            jCombCriarSetor.removeAllItems();
+            String[] opcaoDeCriarSetor = {"Selecione aqui a opção", "( S ) - Sim", "( N ) - Não)"};
+            for (int i = 0; i < opcaoDeCriarSetor.length; i++) {
+                jCombCriarSetor.addItem(opcaoDeCriarSetor[i]);
+            }
+            
+            jCombPavimentar.removeAllItems();
+            String[] opcaoDePavimentar = {"Selecione aqui a opção", "( S ) - Sim", "( N ) - Não)"};
+            for (int i = 0; i < opcaoDePavimentar.length; i++) {
+                jCombPavimentar.addItem(opcaoDePavimentar[i]);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao carregar a tabela!\n" + ex);
         }
-
-        jCombPavimentar.removeAllItems();
-        String[] opcaoDePavimentar = {"Selecione aqui a opção", "( S ) - Sim", "( N ) - Não)"};
-        for (int i = 0; i < opcaoDePavimentar.length; i++) {
-            jCombPavimentar.addItem(opcaoDePavimentar[i]);
-        }
+        
+        imprimirDadosTabela(controle.recuperar());
     }
 
-    public void imprimirDadosSetor(Cidade setor) {
-        String saida = setor.toString() + "\n";
-        jTextAreaSaida.setText(saida);
+    public void imprimirDadosTabela (ArrayList<Cidade> lista)throws Exception {
+        DefaultTableModel model = (DefaultTableModel) jTableCidadeSetor.getModel();
+        model.setRowCount(0);
+        Collections.sort(lista);
+        
+        for (int pos = 0; pos < lista.size(); pos++) {
+            String[] linha = new String[6];
+            Cidade aux = lista.get(pos);
+            linha[0] = aux.getIdCidade()+ "";
+            linha[1] = aux.getNomeDaCidade().toUpperCase();
+            linha[2] = aux.getUf().toUpperCase();
+            linha[3] = aux.getRegiaoDoEstado().toUpperCase();
+            linha[4] = aux.getSetor();
+            linha[5] = aux.getSetorPavimentado().toUpperCase();
+            model.addRow(linha);
+        }        
     }
 
     @SuppressWarnings("unchecked")
@@ -39,12 +66,12 @@ public class TelaCidade extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jTextFieldDescricaoSetor = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextAreaSaida = new javax.swing.JTextArea();
         jButtonExecutar = new javax.swing.JButton();
         jCombCriarSetor = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jCombPavimentar = new javax.swing.JComboBox<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTableCidadeSetor = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Padrão de Projeto Singleton");
@@ -53,18 +80,9 @@ public class TelaCidade extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel1.setText("Controle de Criação de Setores");
 
-        jLabel2.setText("Descrição do setor");
-
-        jTextFieldDescricaoSetor.setText("ACLIMAÇÃO 2");
+        jLabel2.setText("Nome do setor");
 
         jLabel4.setText("Criar Setor ?");
-
-        jTextAreaSaida.setEditable(false);
-        jTextAreaSaida.setColumns(20);
-        jTextAreaSaida.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jTextAreaSaida.setForeground(new java.awt.Color(51, 51, 51));
-        jTextAreaSaida.setRows(5);
-        jScrollPane1.setViewportView(jTextAreaSaida);
 
         jButtonExecutar.setText("Executar");
         jButtonExecutar.addActionListener(new java.awt.event.ActionListener() {
@@ -84,15 +102,50 @@ public class TelaCidade extends javax.swing.JFrame {
 
         jCombPavimentar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione aqui a opção" }));
 
+        jTableCidadeSetor.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Código", "Cidade", "UF", "Região", "Setor Criado", "Pavimentado"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTableCidadeSetor.setEnabled(false);
+        jScrollPane2.setViewportView(jTableCidadeSetor);
+        if (jTableCidadeSetor.getColumnModel().getColumnCount() > 0) {
+            jTableCidadeSetor.getColumnModel().getColumn(0).setMinWidth(50);
+            jTableCidadeSetor.getColumnModel().getColumn(0).setPreferredWidth(50);
+            jTableCidadeSetor.getColumnModel().getColumn(0).setMaxWidth(50);
+            jTableCidadeSetor.getColumnModel().getColumn(1).setMinWidth(200);
+            jTableCidadeSetor.getColumnModel().getColumn(1).setPreferredWidth(200);
+            jTableCidadeSetor.getColumnModel().getColumn(1).setMaxWidth(200);
+            jTableCidadeSetor.getColumnModel().getColumn(2).setMinWidth(30);
+            jTableCidadeSetor.getColumnModel().getColumn(2).setPreferredWidth(30);
+            jTableCidadeSetor.getColumnModel().getColumn(2).setMaxWidth(30);
+            jTableCidadeSetor.getColumnModel().getColumn(3).setMinWidth(80);
+            jTableCidadeSetor.getColumnModel().getColumn(3).setPreferredWidth(80);
+            jTableCidadeSetor.getColumnModel().getColumn(3).setMaxWidth(80);
+            jTableCidadeSetor.getColumnModel().getColumn(4).setMinWidth(150);
+            jTableCidadeSetor.getColumnModel().getColumn(4).setPreferredWidth(150);
+            jTableCidadeSetor.getColumnModel().getColumn(4).setMaxWidth(150);
+        }
+
         javax.swing.GroupLayout jPanelCidadeSingletonLayout = new javax.swing.GroupLayout(jPanelCidadeSingleton);
         jPanelCidadeSingleton.setLayout(jPanelCidadeSingletonLayout);
         jPanelCidadeSingletonLayout.setHorizontalGroup(
             jPanelCidadeSingletonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelCidadeSingletonLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanelCidadeSingletonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
                     .addGroup(jPanelCidadeSingletonLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(jPanelCidadeSingletonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
                             .addComponent(jLabel4)
@@ -104,14 +157,17 @@ public class TelaCidade extends javax.swing.JFrame {
                                     .addComponent(jTextFieldDescricaoSetor)
                                     .addGroup(jPanelCidadeSingletonLayout.createSequentialGroup()
                                         .addComponent(jCombPavimentar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 122, Short.MAX_VALUE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButtonExecutar))
+                                        .addGap(0, 306, Short.MAX_VALUE)))
+                                .addGap(93, 93, 93))
                             .addGroup(jPanelCidadeSingletonLayout.createSequentialGroup()
                                 .addGroup(jPanelCidadeSingletonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel1)
-                                    .addComponent(jCombCriarSetor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                    .addComponent(jCombCriarSetor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanelCidadeSingletonLayout.createSequentialGroup()
+                                        .addGap(190, 190, 190)
+                                        .addComponent(jButtonExecutar)))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addComponent(jScrollPane2))
                 .addContainerGap())
         );
         jPanelCidadeSingletonLayout.setVerticalGroup(
@@ -130,11 +186,12 @@ public class TelaCidade extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelCidadeSingletonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCombPavimentar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
-                    .addComponent(jButtonExecutar))
+                    .addComponent(jLabel3))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButtonExecutar)
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -150,8 +207,8 @@ public class TelaCidade extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelCidadeSingleton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanelCidadeSingleton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -160,24 +217,23 @@ public class TelaCidade extends javax.swing.JFrame {
 
 
     private void jButtonExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExecutarActionPerformed
+       try{
         if (jCombCriarSetor.getSelectedIndex() != 1) {
             JOptionPane.showMessageDialog(null, "A opção selecionada não criará o setor");
         } else {
-
-            setor = new Setor();
-            setor.setNomeDoSetor(jTextFieldDescricaoSetor.getText());
-            cidade = Cidade.getInstancia();
-            cidade.criarSetor(setor);
-
-            boolean pavimentar = jCombPavimentar.getSelectedIndex() == 1 ? true : false;
-            setor.setPavimentado(pavimentar);
-            cidade.getSetorPavimentado(setor);
-
-            imprimirDadosSetor(cidade);
+            
+          controle.criarSetor(jCombCriarSetor.getSelectedIndex(), jTextFieldDescricaoSetor.getText());
+          controle.setorpavimentado(jCombPavimentar.getSelectedIndex());
+          controle.incluirCidade(cidade);
+          imprimirDadosTabela(controle.recuperar());
+            
+        }
             jCombCriarSetor.setSelectedItem("Selecione aqui a opção");
             jCombPavimentar.setSelectedItem("Selecione aqui a opção");
             jTextFieldDescricaoSetor.setText("");
-        }
+       }catch(Exception erro){
+           JOptionPane.showMessageDialog(null, erro.getMessage());
+       }
     }//GEN-LAST:event_jButtonExecutarActionPerformed
 
     private void jCombCriarSetorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jCombCriarSetorMouseClicked
@@ -215,7 +271,11 @@ public class TelaCidade extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaCidade().setVisible(true);
+                try {
+                    new TelaCidade().setVisible(true);
+                } catch (Exception ex) {
+                    Logger.getLogger(TelaCidade.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -229,8 +289,8 @@ public class TelaCidade extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanelCidadeSingleton;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextAreaSaida;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTableCidadeSetor;
     private javax.swing.JTextField jTextFieldDescricaoSetor;
     // End of variables declaration//GEN-END:variables
 }
